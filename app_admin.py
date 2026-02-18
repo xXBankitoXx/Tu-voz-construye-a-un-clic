@@ -122,21 +122,16 @@ if selected == "Mi Voz":
             detalle = st.text_area("Describe tu propuesta:")
             
             if st.form_submit_button("Enviar a Administración"):
-                if nombre and correo_usuario and detalle:
-                    nuevo_id = f"VOZ-{len(df_voz) + 101}"
-                    nueva_voz = pd.DataFrame([{
-                        "ID": nuevo_id, "Residente": nombre, "Correo": correo_usuario, 
-                        "Asunto": asunto, "Detalle": detalle, "Estado": "⏳ Recibido", 
-                        "Respuesta_Admin": "Pendiente de revisión", "Fecha": datetime.now().strftime("%Y-%m-%d")
-                    }])
-                    df_actualizado = pd.concat([df_voz, nueva_voz], ignore_index=True)
-                    conn.update(worksheet="voz", data=df_actualizado)
-                    
-                    st.success(f"### ✅ ¡Solicitud enviada con éxito, {nombre}!")
-                    st.code(nuevo_id, language="text")
-                    enviar_correo_ticket(correo_usuario, nuevo_id, asunto, detalle)
-                else:
-                    st.warning("⚠️ Completa todos los campos.")
+    # Añadimos una validación simple de "@"
+    if nombre and correo_usuario and detalle:
+        if "@" in correo_usuario:
+            # ... resto de tu código para guardar en Sheets ...
+            enviar_correo_ticket(correo_usuario, nuevo_id, asunto, detalle)
+            st.success(f"Ticket {nuevo_id} enviado.")
+        else:
+            st.error("⚠️ Por favor, ingresa un correo electrónico válido (debe incluir @).")
+    else:
+        st.warning("⚠️ Completa todos los campos.")
     else:
         busqueda = st.text_input("Ingresa tu código (Ejemplo: VOZ-101)")
         if busqueda:
@@ -224,3 +219,4 @@ elif selected == "Gestión":
                 st.table(df_admin_p)
     else:
         st.warning("Ingrese la clave correcta.")
+
